@@ -1,13 +1,20 @@
 package com.example.mhraju.barcodeqrcodescan
 
 import android.content.ContentValues.TAG
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat.getSystemService
 import android.util.Log
 import android.util.SparseArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.vision.barcode.Barcode
@@ -19,6 +26,9 @@ class BarCodeReadFragment : Fragment(), BarcodeReader.BarcodeReaderListener {
 
     private lateinit var barcodeReader: BarcodeReader
 
+    private lateinit var mySensorManager: SensorManager
+    private lateinit var myProximitySensor: Sensor
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
@@ -26,6 +36,17 @@ class BarCodeReadFragment : Fragment(), BarcodeReader.BarcodeReaderListener {
 
         barcodeReader = (childFragmentManager.findFragmentById(R.id.barcode_fragment) as BarcodeReader?)!!
         barcodeReader.setListener(this)
+
+
+        mySensorManager =  activity!!.getSystemService(
+                Context.SENSOR_SERVICE) as SensorManager
+        myProximitySensor = mySensorManager.getDefaultSensor(
+                Sensor.TYPE_PROXIMITY)
+
+        mySensorManager.registerListener(proximitySensorEventListener,
+                myProximitySensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+
 
         return v
     }
@@ -64,7 +85,35 @@ class BarCodeReadFragment : Fragment(), BarcodeReader.BarcodeReaderListener {
                 Toasty.success(activity!!, "Barcode: " + barcode.displayValue, Toast.LENGTH_SHORT, true).show();
 
 
-                Toast.makeText(activity, "Barcode: " + barcode.displayValue, Toast.LENGTH_SHORT).show()
+               // Toast.makeText(activity, "Barcode: " + barcode.displayValue, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+
+    var proximitySensorEventListener: SensorEventListener = object : SensorEventListener {
+        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
+            // TODO Auto-generated method stub
+        }
+
+        override fun onSensorChanged(event: SensorEvent) {
+            // TODO Auto-generated method stub
+            if (event.sensor.type == Sensor.TYPE_PROXIMITY) {
+
+                var  params : WindowManager.LayoutParams = activity!!.getWindow().getAttributes()
+
+                if(event.values[0]==0f){
+
+                    params.flags != WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    params.screenBrightness = 0f
+                    activity!!.getWindow().setAttributes(params)
+                }
+                else{
+                    params.flags != WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                    params.screenBrightness = -1f
+                    activity!!.getWindow().setAttributes(params)
+                }
+
             }
         }
     }

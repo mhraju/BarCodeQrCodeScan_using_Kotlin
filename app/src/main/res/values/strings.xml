@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BarCodeQrCodeScan</string>
+    <string name="app_name">Bar_QR Scanner n Proximity Sensor(Kotlin)</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
